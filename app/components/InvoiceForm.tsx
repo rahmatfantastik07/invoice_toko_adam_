@@ -10,7 +10,7 @@ export default function InvoiceForm() {
     date: "",
     dueDate: "",
     from: {
-      name: "CV. Family Target",
+      name: "Toko Adam",
       address: "",
       phone: "",
       email: "",
@@ -95,7 +95,7 @@ export default function InvoiceForm() {
     <div className="grid md:grid-cols-2 gap-6 max-w-350">
 
       {/* ================= FORM ================= */}
-      <div className="bg-white p-4 rounded shadow space-y-3">
+      <div className="bg-white p-4 rounded shadow space-y-3 w-80">
 
         <h2 className="font-bold">Nomor Invoice</h2>
         <input
@@ -116,14 +116,14 @@ export default function InvoiceForm() {
               setData({ ...data, date: e.target.value })
             }
           />
-          <input
+          {/* <input
             type="date"
             className="input"
             value={data.dueDate}
             onChange={(e) =>
               setData({ ...data, dueDate: e.target.value })
             }
-          />
+          /> */}
         </div>
 
         <h2 className="font-bold">Pengirim</h2>
@@ -216,7 +216,7 @@ export default function InvoiceForm() {
           }
         />
 
-        <div className="flex gap-2">
+        {/* <div className="flex gap-2">
           <input
             className="input"
             placeholder="Dari Kota"
@@ -237,7 +237,7 @@ export default function InvoiceForm() {
               })
             }
           />
-        </div>
+        </div> */}
 
         <h2 className="font-bold">Tambah Item</h2>
         {data.items.map((item: any, i: number) => (
@@ -249,7 +249,7 @@ export default function InvoiceForm() {
                 updateItem(i, "desc", e.target.value)
               }
             />
-            <div className="flex gap-2">
+            <div className="flex gap-2 p-2">
               <input
                 type="number"
                 className="input"
