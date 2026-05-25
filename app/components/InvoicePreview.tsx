@@ -82,20 +82,15 @@ const handleDownloadPDF = async () => {
 
   return (
     <div className="w-full" style={{
-  width: "1122px",
+  width: "1000px",
   minHeight: "794px",
-  padding: "40px",
+  padding: "10px",
   display: "flex",
   flexDirection: "column",
   justifyContent: "space-between", // 🔥 KUNCI
 }}>
 
-      {/* BUTTON */}
-      <div className="mb-2">
-        <button onClick={handleDownloadPDF} className="btn">
-          📄 Download PDF
-        </button>
-      </div>
+      
 
       <div className="preview-wrapper preview-page">
         <div className="preview-scale">
@@ -103,7 +98,7 @@ const handleDownloadPDF = async () => {
           <div
             ref={printRef}
             style={{
-              width: "297mm",
+              width: "250mm",
               minHeight: "210mm",
               padding: "10mm",
               paddingBottom: "20mm",
@@ -130,7 +125,7 @@ const handleDownloadPDF = async () => {
                 <h1 className="text-xl font-bold">INVOICE</h1>
                 <p>{data.invoiceNumber || "-"}</p>
                 <p>Tanggal: {formatTanggal(data.date)}</p>
-                <p>Jatuh Tempo: {formatTanggal(data.dueDate)}</p>
+                {/* <p>Jatuh Tempo: {formatTanggal(data.dueDate)}</p> */}
 
                 <div style={{ marginTop: "16px" }}>
                   <p className="font-bold">Kepada:</p>
@@ -138,9 +133,9 @@ const handleDownloadPDF = async () => {
                   <p>{data.to?.address || "-"}</p>
                   <p>{data.to?.phone || "-"}</p>
                   <p>{data.to?.email || "-"}</p>
-                  <p>
+                  {/* <p>
                     dari <strong className="text-blue-950">{(data.to?.fromCity || "-")}</strong> ke <strong className="text-blue-950">{(data.to?.toCity || "-")}</strong>
-                  </p>
+                  </p> */}
                 </div>
               </div>
 
@@ -281,7 +276,7 @@ const handleDownloadPDF = async () => {
 
   {/* KANAN (TTD) */}
   <div style={{ textAlign: "center", width: "200px" }}>
-    <p>Hormat Kami,</p>
+    <p> Hormat Kami,</p>
 
     {data.signature && (
       <img
@@ -295,7 +290,7 @@ const handleDownloadPDF = async () => {
       />
     )}
 
-    <p>{data.from?.name || "-"}</p>
+    <p><span className="font-bold">{data.from?.name || "-"}</span></p>
   </div>
 
 </div>
@@ -304,17 +299,23 @@ const handleDownloadPDF = async () => {
             <div
               style={{
                 marginTop: "15px",
-                fontSize: "8px",
+                fontSize: "12px",
                 textAlign: "center",
               }}
             >
               <p>Terima kasih atas kepercayaan Anda 🙏</p>
-              <p>Dibuat oleh: {data.from?.name || "-"}</p>
+              <p>Dibuat oleh: <span className="font-bold text-red-700">{data.from?.name || "-"}</span></p>
             </div>
 
           </div>
+      <div className="top-500">
+        <button onClick={handleDownloadPDF} className="btn">
+          📄 Download PDF
+        </button>
+      </div>
         </div>
       </div>
+          {/* BUTTON */}
     </div>
   );
 }
