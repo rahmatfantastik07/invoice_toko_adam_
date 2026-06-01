@@ -5,298 +5,690 @@ import InvoicePreview from "./InvoicePreview";
 import { generateInvoiceNumber } from "./utils";
 
 export default function InvoiceForm() {
+
   const [data, setData] = useState<any>({
-    invoiceNumber: "",
-    date: "",
-    dueDate: "",
-    from: {
-      name: "Toko Adam",
-      address: "",
-      phone: "",
-      email: "",
-    },
-    to: {
-      name: "",
-      address: "",
-      phone: "",
-      email: "",
-      fromCity: "",
-      toCity: "",
-    },
-    items: [{ desc: "", qty: 1, price: 0 }],
-    notes: "",
-    signature: "",
-    qris: "",
-    logo: "",
-  });
 
-  useEffect(() => {
-    const today = new Date().toISOString().split("T")[0];
+  invoiceNumber: "",
 
-    setData((prev: any) => ({
-      ...prev,
-      invoiceNumber: prev.invoiceNumber || generateInvoiceNumber(),
-      date: prev.date || today,
-      dueDate: prev.dueDate || today,
-    }));
-  }, []);
+  date: "",
 
-  const updateItem = (i: number, field: string, value: any) => {
-    const items = [...data.items];
-    items[i][field] = value;
-    setData({ ...data, items });
-  };
+  logo: "",
 
-  const addItem = () => {
-    setData({
-      ...data,
-      items: [...data.items, { desc: "", qty: 1, price: 0 }],
-    });
-  };
+  signature: "",
+
+  toko: "Adam Cell",
+
+  alamatToko: "Taliabu",
+
+  teleponToko: "08xxxxxxxxxx",
+
+  namaPelanggan: "",
+
+  alamatPelanggan: "",
+
+  nomorHp: "",
+
+  merkHp: "",
+
+  tipeHp: "",
+
+  imei: "",
+
+  warna: "",
+
+  kelengkapan: "",
+
+  kerusakan: "",
+
+ securityType: "none",
+
+pin: "",
+
+pattern: [],
+
+  catatan: "",
+
+  estimasiBiaya: 0,
+  checkup: false,
+
+});
+
+ useEffect(() => {
+
+  const today =
+    new Date()
+      .toISOString()
+      .split("T")[0];
+
+  setData((prev: any) => ({
+
+    ...prev,
+
+    invoiceNumber:
+      prev.invoiceNumber ||
+      generateInvoiceNumber(),
+
+    
+
+  }));
+
+}, []);
 
   const handleFile = (
     e: any,
-    type: "signature" | "qris" | "logo"
+    type:
+      | "logo"
+      | "signature"
   ) => {
-    const file = e.target.files[0];
+
+    const file =
+      e.target.files?.[0];
+
     if (!file) return;
 
-    const reader = new FileReader();
+    const reader =
+      new FileReader();
+
     reader.onload = () => {
+
       setData((prev: any) => ({
+
         ...prev,
-        [type]: reader.result,
+
+        [type]:
+          reader.result,
+
       }));
+
     };
-    reader.readAsDataURL(file);
+
+    reader.readAsDataURL(
+      file
+    );
+
   };
 
-  // 🔥 VALIDASI NOMOR HP
-  const handlePhone = (value: string, type: "from" | "to") => {
-    // hanya angka
-    if (!/^\d*$/.test(value)) return;
+  const handlePhone = (
+    value: string
+  ) => {
 
-    // max 12 digit
-    if (value.length > 12) return;
+    if (!/^\d*$/.test(value))
+      return;
 
-    // harus mulai dari 0 (kalau sudah diisi)
-    if (value.length > 0 && !value.startsWith("0")) return;
+    if (value.length > 13)
+      return;
+
+    if (
+      value.length > 0 &&
+      !value.startsWith("0")
+    )
+      return;
 
     setData({
+
       ...data,
-      [type]: {
-        ...data[type],
-        phone: value,
-      },
+
+      nomorHp: value,
+
     });
+
   };
 
+  const formatRupiahInput = (
+    value: string
+  ) => {
+
+    const angka =
+      value.replace(
+        /\D/g,
+        ""
+      );
+
+    if (!angka)
+      return "";
+
+    return new Intl.NumberFormat(
+      "id-ID"
+    ).format(
+      Number(angka)
+    );
+
+  };
+
+  const handleBiaya = (
+    value: string
+  ) => {
+
+    setData({
+
+      ...data,
+
+      estimasiBiaya:
+        formatRupiahInput(
+          value
+        ),
+
+    });
+
+  };
   return (
-    <div className="grid md:grid-cols-2 gap-6 max-w-350">
+
+    <div className="grid lg:grid-cols-2 gap-6 w-280">
 
       {/* ================= FORM ================= */}
-      <div className="bg-white p-4 rounded shadow space-y-3 w-80">
 
-        <h2 className="font-bold">Nomor Invoice</h2>
-        <input
-          className="input"
-          value={data.invoiceNumber}
-          onChange={(e) =>
-            setData({ ...data, invoiceNumber: e.target.value })
-          }
-        />
+      <div className="bg-white rounded-xl shadow p-5 space-y-4">
 
-        <h2 className="font-bold">Tanggal</h2>
-        <div className="flex gap-2">
+        <h2 className="text-xl font-bold border-b pb-2">
+
+          Form Nota Service Adam Cell
+
+        </h2>
+
+        {/* NOMOR NOTA */}
+
+        <div>
+
+          <label className="font-semibold block mb-1">
+
+            Nomor Nota
+
+          </label>
+
           <input
-            type="date"
-            className="input"
-            value={data.date}
+            className="input w-full"
+            value={data.nomorNota}
             onChange={(e) =>
-              setData({ ...data, date: e.target.value })
+              setData({
+                ...data,
+                nomorNota:
+                  e.target.value,
+              })
             }
           />
-          {/* <input
-            type="date"
-            className="input"
-            value={data.dueDate}
-            onChange={(e) =>
-              setData({ ...data, dueDate: e.target.value })
-            }
-          /> */}
+
         </div>
 
-        <h2 className="font-bold">Pengirim</h2>
+        {/* TANGGAL */}
 
-        <p className="font-semibold">Upload Logo</p>
-        <input
-          type="file" className="btn2"
-          onChange={(e) => handleFile(e, "logo")}
-        />
+        <div>
 
-        <input
-          className="input"
-          placeholder="Nama"
-          value={data.from.name}
-          onChange={(e) =>
-            setData({
-              ...data,
-              from: { ...data.from, name: e.target.value },
-            })
-          }
-        />
-        <input
-          className="input"
-          placeholder="Alamat"
-          onChange={(e) =>
-            setData({
-              ...data,
-              from: { ...data.from, address: e.target.value },
-            })
-          }
-        />
+          <label className="font-semibold block mb-1">
 
-        {/* 🔥 VALIDASI HP PENGIRIM */}
-        <input
-          className="input"
-          placeholder="Mulai dengan angka 0"
-          value={data.from.phone}
-          onChange={(e) => handlePhone(e.target.value, "from")}
-        />
+            Tanggal
 
-        <input
-          className="input"
-          placeholder="Email"
-          onChange={(e) =>
-            setData({
-              ...data,
-              from: { ...data.from, email: e.target.value },
-            })
-          }
-        />
+          </label>
 
-        <h2 className="font-bold">Penerima</h2>
-        <input
-          className="input"
-          placeholder="Nama"
-          onChange={(e) =>
-            setData({
-              ...data,
-              to: { ...data.to, name: e.target.value },
-            })
-          }
-        />
-        <input
-          className="input"
-          placeholder="Alamat"
-          onChange={(e) =>
-            setData({
-              ...data,
-              to: { ...data.to, address: e.target.value },
-            })
-          }
-        />
-
-        {/* 🔥 VALIDASI HP PENERIMA */}
-        <input
-          className="input"
-          placeholder="Mulai dengan angka 0"
-          value={data.to.phone}
-          onChange={(e) => handlePhone(e.target.value, "to")}
-        />
-
-        <input
-          className="input"
-          placeholder="Email"
-          onChange={(e) =>
-            setData({
-              ...data,
-              to: { ...data.to, email: e.target.value },
-            })
-          }
-        />
-
-        {/* <div className="flex gap-2">
           <input
-            className="input"
-            placeholder="Dari Kota"
+            type="date"
+            className="input w-full"
+            value={data.tanggal}
             onChange={(e) =>
               setData({
                 ...data,
-                to: { ...data.to, fromCity: e.target.value },
+                tanggal:
+                  e.target.value,
               })
             }
           />
+
+        </div>
+
+        {/* PELANGGAN */}
+
+        <div className="border rounded p-3">
+
+          <h3 className="font-bold mb-3">
+
+            Data Pelanggan
+
+          </h3>
+
           <input
-            className="input"
-            placeholder="Ke Kota"
+            className="input w-full mb-2"
+            placeholder="Nama Pelanggan"
+            value={data.namaPelanggan}
             onChange={(e) =>
               setData({
                 ...data,
-                to: { ...data.to, toCity: e.target.value },
+                namaPelanggan:
+                  e.target.value,
               })
             }
           />
-        </div> */}
 
-        <h2 className="font-bold">Tambah Item</h2>
-        {data.items.map((item: any, i: number) => (
-          <div key={i}>
-            <input
-              className="input"
-              placeholder="Deskripsi"
-              onChange={(e) =>
-                updateItem(i, "desc", e.target.value)
-              }
-            />
-            <div className="flex gap-2 p-2">
+          <input
+            className="input w-full"
+            placeholder="Nomor HP"
+            value={data.nomorHp}
+            onChange={(e) =>
+              handlePhone(
+                e.target.value
+              )
+            }
+          />
+
+        </div>
+
+        {/* DATA HP */}
+
+        <div className="border rounded p-3">
+
+          <h3 className="font-bold mb-3">
+
+            Data Handphone
+
+          </h3>
+
+          <input
+            className="input w-full mb-2"
+            placeholder="Merk"
+            value={data.merk}
+            onChange={(e) =>
+              setData({
+                ...data,
+                merk:
+                  e.target.value,
+              })
+            }
+          />
+
+          <input
+            className="input w-full mb-2"
+            placeholder="Type"
+            value={data.tipe}
+            onChange={(e) =>
+              setData({
+                ...data,
+                tipe:
+                  e.target.value,
+              })
+            }
+          />
+
+          <input
+            className="input w-full"
+            placeholder="IMEI"
+            value={data.imei}
+            onChange={(e) =>
+              setData({
+                ...data,
+                imei:
+                  e.target.value,
+              })
+            }
+          />
+
+        </div>
+
+        {/* JENIS SERVIS */}
+
+        <div className="border rounded p-3">
+
+          <h3 className="font-bold mb-3">
+
+            Jenis Service
+
+          </h3>
+
+          <div className="grid grid-cols-3 gap-3">
+
+            <label>
+
               <input
-                type="number"
-                className="input"
-                placeholder="Qty"
+                type="checkbox"
+                checked={
+                  data.checkup
+                }
                 onChange={(e) =>
-                  updateItem(i, "qty", +e.target.value)
+                  setData({
+                    ...data,
+                    checkup:
+                      e.target.checked,
+                  })
                 }
               />
+
+              {" "}Check Up
+
+            </label>
+
+            <label>
+
               <input
-                type="number"
-                className="input"
-                placeholder="Harga"
+                type="checkbox"
+                checked={
+                  data.service
+                }
                 onChange={(e) =>
-                  updateItem(i, "price", +e.target.value)
+                  setData({
+                    ...data,
+                    service:
+                      e.target.checked,
+                  })
                 }
               />
-            </div>
+
+              {" "}Service
+
+            </label>
+
+            <label>
+
+              <input
+                type="checkbox"
+                checked={
+                  data.garansi
+                }
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    garansi:
+                      e.target.checked,
+                  })
+                }
+              />
+
+              {" "}Garansi
+
+            </label>
+
           </div>
-        ))}
 
-        <button onClick={addItem} className="btn">
-          + Item
+        </div>
+
+                {/* KELENGKAPAN */}
+
+        <div className="border rounded p-3">
+
+          <h3 className="font-bold mb-3">
+
+            Kelengkapan
+
+          </h3>
+
+          <textarea
+            className="input w-full min-h-24"
+            placeholder="Contoh: Baterai, Sim Card, Memory, Charger, LCD, Backdoor"
+            value={data.kelengkapan}
+            onChange={(e) =>
+              setData({
+                ...data,
+                kelengkapan:
+                  e.target.value,
+              })
+            }
+          />
+
+        </div>
+
+        {/* KERUSAKAN */}
+
+        <div className="border rounded p-3">
+
+          <h3 className="font-bold mb-3">
+
+            Keluhan / Kerusakan
+
+          </h3>
+
+          <textarea
+            className="input w-full min-h-28"
+            placeholder="Jelaskan kerusakan handphone..."
+            value={data.kerusakan}
+            onChange={(e) =>
+              setData({
+                ...data,
+                kerusakan:
+                  e.target.value,
+              })
+            }
+          />
+
+        </div>
+
+        {/* PIN / POLA */}
+
+        <div className="border rounded p-3">
+
+  <h3 className="font-bold mb-3">
+    Keamanan Perangkat
+  </h3>
+
+  <select
+    className="input w-full mb-3"
+    value={data.securityType}
+    onChange={(e) =>
+      setData({
+        ...data,
+        securityType: e.target.value,
+      })
+    }
+  >
+    <option value="none">
+      Tidak Ada
+    </option>
+
+    <option value="pin">
+      PIN
+    </option>
+
+    <option value="password">
+      Password
+    </option>
+
+    <option value="pattern">
+      Pola
+    </option>
+
+  </select>
+
+  {(data.securityType === "pin" ||
+    data.securityType === "password") && (
+
+    <input
+      className="input w-full mb-3"
+      placeholder={
+        data.securityType === "pin"
+          ? "Masukkan PIN"
+          : "Masukkan Password"
+      }
+      value={data.pin}
+      onChange={(e) =>
+        setData({
+          ...data,
+          pin: e.target.value,
+        })
+      }
+    />
+
+  )}
+
+  {data.securityType === "pattern" && (
+
+  <div className="align-middle">
+
+    <p className="mb-2 font-semibold ">
+      Klik titik sesuai pola
+    </p>
+
+    <div
+      className="
+      grid
+      grid-cols-3
+      gap-4
+      w-40
+      "
+    >
+
+      {[1,2,3,4,5,6,7,8,9].map(
+        (num) => (
+
+          <button
+            key={num}
+            type="button"
+            onClick={() => {
+
+              if (
+                data.pattern.includes(
+                  num
+                )
+              )
+                return;
+
+              setData({
+                ...data,
+                pattern: [
+                  ...data.pattern,
+                  num,
+                ],
+              });
+
+            }}
+            className={`
+            w-10
+            h-10
+            rounded-full
+            border-2
+            ${
+              data.pattern.includes(
+                num
+              )
+                ? "bg-blue-600 text-white"
+                : "bg-white"
+            }
+          `}
+          >
+            {num}
+          </button>
+
+        )
+      )}
+
+    </div>
+
+    <button
+      type="button"
+      className="
+      mt-3
+      bg-red-500
+      text-white
+      px-3
+      py-1
+      rounded
+      "
+      onClick={() =>
+        setData({
+          ...data,
+          pattern: [],
+        })
+      }
+    >
+      Reset Pola
+    </button>
+
+  </div>
+
+)}
+
+</div>
+        {/* ESTIMASI */}
+
+        <div className="border rounded p-3">
+
+          <h3 className="font-bold mb-3">
+
+            Estimasi Biaya
+
+          </h3>
+
+          <input
+            type="number"
+            className="input w-full"
+            placeholder="Estimasi Biaya Service"
+            value={
+              data.estimasiBiaya
+            }
+            onChange={(e) =>
+              setData({
+                ...data,
+                estimasiBiaya:
+                  Number(
+                    e.target.value
+                  ),
+              })
+            }
+          />
+
+        </div>
+
+        {/* LOGO */}
+
+        <div className="border rounded p-3">
+
+          <h3 className="font-bold mb-3">
+
+            Upload Logo Adam Cell
+
+          </h3>
+
+          <input
+            type="file"
+            className="w-full"
+            accept="image/*"
+            onChange={(e) =>
+              handleFile(
+                e,
+                "logo"
+              )
+            }
+          />
+
+        </div>
+
+        {/* TTD */}
+
+        <div className="border rounded p-3">
+
+          <h3 className="font-bold mb-3">
+
+            Upload Tanda Tangan
+
+          </h3>
+
+          <input
+            type="file"
+            className="w-full"
+            accept="image/*"
+            onChange={(e) =>
+              handleFile(
+                e,
+                "signature"
+              )
+            }
+          />
+
+        </div>
+
+        {/* TOMBOL */}
+
+        <button
+          type="button"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg"
+        >
+
+          Preview Nota Service
+
         </button>
 
-        <textarea
-          className="input"
-          placeholder="Catatan"
-          onChange={(e) =>
-            setData({ ...data, notes: e.target.value })
-          }
-        />
-
-        <p className="font-semibold">Upload Tanda Tangan</p>
-        <input
-          type="file" className="btn2"
-          onChange={(e) => handleFile(e, "signature")}
-        />
-
-        <p className="font-semibold">Upload QRIS</p>
-        <input
-          type="file" className="btn2"
-          onChange={(e) => handleFile(e, "qris")}
-        />
       </div>
 
       {/* ================= PREVIEW ================= */}
-      <InvoicePreview data={data} />
+
+      <InvoicePreview
+        data={data}
+      />
+
     </div>
-  );
+      );
 }
