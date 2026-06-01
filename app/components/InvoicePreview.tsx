@@ -1,321 +1,945 @@
 "use client";
 
-import { formatRupiah, formatTanggal } from "./utils";
 import { useRef } from "react";
+
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 
-export default function InvoicePreview({ data }: any) {
-  const printRef = useRef<HTMLDivElement>(null);
+import {
+  formatRupiah,
+  formatTanggal,
+} from "./utils";
 
-  const total = (data.items || []).reduce(
-    (sum: number, item: any) =>
-      sum + (item.qty || 0) * (item.price || 0),
-    0
-  );
+export default function InvoicePreview({
+  data,
+}: any) {
 
-const handleDownloadPDF = async () => {
-  try {
-    const element = printRef.current;
-    if (!element) return;
+  const printRef =
+    useRef<HTMLDivElement>(
+      null
+    );
 
-    // 🔥 CLONE BIAR TIDAK TERPENGARUH RESPONSIVE / SCALE
-    const clone = element.cloneNode(true) as HTMLElement;
+  const handleDownloadPDF =
+    async () => {
 
-    clone.style.width = "1122px";     // 🔥 paksa A4 landscape
-    clone.style.minHeight = "794px";
-    clone.style.transform = "scale(1)";
-    clone.style.background = "#fff";
+      try {
 
-    // 🔥 taruh di luar layar (aman mobile)
-    const wrapper = document.createElement("div");
-    wrapper.style.position = "absolute";
-    wrapper.style.top = "-99999px";
-    wrapper.style.left = "-99999px";
+        const element =
+          printRef.current;
 
-    wrapper.appendChild(clone);
-    document.body.appendChild(wrapper);
+        if (!element)
+          return;
 
-    const canvas = await html2canvas(clone, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: "#ffffff",
+        const canvas =
+          await html2canvas(
+            element,
+            {
+              scale: 2,
+              useCORS: true,
+              backgroundColor:
+                "#ffffff",
+            }
+          );
 
-      // 🔥 FIX COLOR ERROR (lab / oklch)
-      onclone: (doc) => {
-        doc.querySelectorAll("*").forEach((el: any) => {
-          const style = window.getComputedStyle(el);
+        const imgData =
+          canvas.toDataURL(
+            "image/png"
+          );
 
-          if (style.color.includes("lab") || style.color.includes("oklch")) {
-            el.style.color = "#000";
-          }
-          if (style.backgroundColor.includes("lab") || style.backgroundColor.includes("oklch")) {
-            el.style.backgroundColor = "#fff";
-          }
-          if (style.borderColor.includes("lab") || style.borderColor.includes("oklch")) {
-            el.style.borderColor = "#ccc";
-          }
-        });
-      },
-    });
+        const pdf =
+          new jsPDF({
+            orientation:
+              "portrait",
+            unit: "mm",
+            format: "a4",
+          });
 
-    document.body.removeChild(wrapper);
+        const pdfWidth =
+          210;
 
-    const imgData = canvas.toDataURL("image/jpeg", 0.95);
+        const imgWidth =
+          pdfWidth;
 
-    const pdf = new jsPDF({
-      orientation: "landscape",
-      unit: "mm",
-      format: "a4",
-    });
+        const imgHeight =
+          (canvas.height *
+            imgWidth) /
+          canvas.width;
 
-    pdf.addImage(imgData, "JPEG", 0, 0, 297, 210);
+        pdf.addImage(
+          imgData,
+          "PNG",
+          0,
+          0,
+          imgWidth,
+          imgHeight
+        );
 
-    pdf.save(`${data.invoiceNumber || "invoice"}.pdf`);
+        pdf.save(
+          `${data.invoiceNumber}.pdf`
+        );
 
-  } catch (err) {
-    console.error("PDF ERROR FINAL:", err);
-    alert("Gagal download PDF (render gagal di device ini)");
-  }
-};
+      } catch (error) {
+
+        console.error(
+          error
+        );
+
+        alert(
+          "Gagal membuat PDF"
+        );
+
+      }
+
+    };
 
   return (
-    <div className="w-full" style={{
-  width: "1000px",
-  minHeight: "794px",
-  padding: "10px",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between", // 🔥 KUNCI
-}}>
 
-      
+    <div className="w-full">
 
-      <div className="preview-wrapper preview-page">
-        <div className="preview-scale">
+      <button
+        onClick={
+          handleDownloadPDF
+        }
+        className="mb-4 bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg font-semibold"
+      >
+        Download PDF
+      </button>
+
+      <div
+        ref={printRef}
+        className="bg-white text-black shadow-lg mx-auto"
+        style={{
+          width: "210mm",
+          minHeight: "297mm",
+          padding: "12mm",
+          fontFamily:
+            "Arial, sans-serif",
+        }}
+      >
+
+        {/* HEADER */}
+
+        <div className="flex justify-between items-start border-b-2 border-black pb-3">
+
+          <div>
+
+            <h1
+              style={{
+                fontSize:
+                  "28px",
+                fontWeight:
+                  "bold",
+                lineHeight:
+                  "30px",
+              }}
+            >
+              ADAM CELL
+            </h1>
+
+            <p>
+              Taliabu
+            </p>
+
+            <p>
+              {data.teleponToko}
+            </p>
+
+          </div>
+
+          <div className="text-right">
+
+            {data.logo && (
+
+              <img
+                src={data.logo}
+                alt="Logo"
+                style={{
+                  width:
+                    "90px",
+                  height:
+                    "90px",
+                  objectFit:
+                    "contain",
+                }}
+              />
+
+            )}
+
+          </div>
+
+        </div>
+
+        {/* JUDUL */}
+
+        <div className="text-center mt-4 mb-4">
+
+          <h2
+            style={{
+              fontSize:
+                "20px",
+              fontWeight:
+                "bold",
+            }}
+          >
+            FORM PENERIMAAN
+            SERVICE HP
+          </h2>
+
+        </div>
+                {/* INFORMASI SERVICE */}
+
+        <table
+          style={{
+            width: "100%",
+            borderCollapse:
+              "collapse",
+            marginBottom:
+              "15px",
+            fontSize:
+              "13px",
+          }}
+        >
+
+          <tbody>
+
+            <tr>
+
+              <td
+                style={{
+                  width: "140px",
+                  padding: "4px",
+                }}
+              >
+                No Service
+              </td>
+
+              <td
+                style={{
+                  width: "10px",
+                }}
+              >
+                :
+              </td>
+
+              <td
+                style={{
+                  padding: "4px",
+                }}
+              >
+                {data.invoiceNumber}
+              </td>
+
+              <td
+                style={{
+                  width: "120px",
+                  padding: "4px",
+                }}
+              >
+                Tanggal
+              </td>
+
+              <td>:</td>
+
+              <td>
+                {data.date
+  ? formatTanggal(data.date)
+  : "-"}
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+        {/* DATA PELANGGAN */}
+
+        <div
+          style={{
+            border:
+              "1px solid black",
+            marginBottom:
+              "15px",
+          }}
+        >
 
           <div
-            ref={printRef}
             style={{
-              width: "250mm",
-              minHeight: "210mm",
-              padding: "10mm",
-              paddingBottom: "20mm",
-              boxSizing: "border-box",
-              background: "#ffffff",
-              fontFamily: "Arial, sans-serif",
+              background:
+                "#e5e5e5",
+              padding: "6px",
+              fontWeight:
+                "bold",
             }}
-            className="invoice-print"
+          >
+            DATA PELANGGAN
+          </div>
+
+          <table
+            style={{
+              width: "100%",
+              borderCollapse:
+                "collapse",
+              fontSize:
+                "13px",
+            }}
           >
 
-            {/* ================= HEADER (FIX PRESISI) ================= */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "20px",
-                alignItems: "start",
-                marginBottom: "20px",
-              }}
-            >
+            <tbody>
 
-              {/* KIRI */}
-              <div>
-                <h1 className="text-xl font-bold">INVOICE</h1>
-                <p>{data.invoiceNumber || "-"}</p>
-                <p>Tanggal: {formatTanggal(data.date)}</p>
-                {/* <p>Jatuh Tempo: {formatTanggal(data.dueDate)}</p> */}
+              <tr>
 
-                <div style={{ marginTop: "16px" }}>
-                  <p className="font-bold">Kepada:</p>
-                  <strong><p className="text-blue-950">{data.to?.name || "-"}</p></strong>
-                  <p>{data.to?.address || "-"}</p>
-                  <p>{data.to?.phone || "-"}</p>
-                  <p>{data.to?.email || "-"}</p>
-                  {/* <p>
-                    dari <strong className="text-blue-950">{(data.to?.fromCity || "-")}</strong> ke <strong className="text-blue-950">{(data.to?.toCity || "-")}</strong>
-                  </p> */}
-                </div>
-              </div>
+                <td
+                  style={{
+                    width: "160px",
+                    padding: "6px",
+                  }}
+                >
+                  Nama
+                </td>
 
-              {/* KANAN */}
-              <div style={{ textAlign: "right" }}>
-                {data.logo && (
-                  <img
-                    src={data.logo}
-                    style={{
-                      height: "50px",
-                      marginBottom: "6px",
-                      objectFit: "contain",
-                      marginLeft: "auto",
-                    }}
-                  />
+                <td
+                  style={{
+                    width: "10px",
+                  }}
+                >
+                  :
+                </td>
+
+                <td>
+                  {data.namaPelanggan}
+                </td>
+
+              </tr>
+
+              <tr>
+
+                <td
+                  style={{
+                    padding: "6px",
+                  }}
+                >
+                  Alamat
+                </td>
+
+                <td>
+                  :
+                </td>
+
+                <td>
+                  {
+                    data.alamatPelanggan
+                  }
+                </td>
+
+              </tr>
+
+              <tr>
+
+                <td
+                  style={{
+                    padding: "6px",
+                  }}
+                >
+                  No. HP
+                </td>
+
+                <td>
+                  :
+                </td>
+
+                <td>
+                  {data.nomorHp}
+                </td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+        {/* DATA HANDPHONE */}
+
+        <div
+          style={{
+            border:
+              "1px solid black",
+            marginBottom:
+              "15px",
+          }}
+        >
+
+          <div
+            style={{
+              background:
+                "#e5e5e5",
+              padding: "6px",
+              fontWeight:
+                "bold",
+            }}
+          >
+            DATA HANDPHONE
+          </div>
+
+          <table
+            style={{
+              width: "100%",
+              borderCollapse:
+                "collapse",
+              fontSize:
+                "13px",
+            }}
+          >
+
+            <tbody>
+
+              <tr>
+
+                <td
+                  style={{
+                    width: "160px",
+                    padding: "6px",
+                  }}
+                >
+                  Merk HP
+                </td>
+
+                <td
+                  style={{
+                    width: "10px",
+                  }}
+                >
+                  :
+                </td>
+
+                <td>
+                  {data.merkHp}
+                </td>
+
+              </tr>
+
+              <tr>
+
+                <td
+                  style={{
+                    padding: "6px",
+                  }}
+                >
+                  Tipe / Model
+                </td>
+
+                <td>
+                  :
+                </td>
+
+                <td>
+                  {data.tipeHp}
+                </td>
+
+              </tr>
+
+              <tr>
+
+                <td
+                  style={{
+                    padding: "6px",
+                  }}
+                >
+                  IMEI
+                </td>
+
+                <td>
+                  :
+                </td>
+
+                <td>
+                  {data.imei}
+                </td>
+
+              </tr>
+
+              <tr>
+
+                <td
+                  style={{
+                    padding: "6px",
+                  }}
+                >
+                  Warna
+                </td>
+
+                <td>
+                  :
+                </td>
+
+                <td>
+                  {data.warna}
+                </td>
+
+              </tr>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+                {/* KELENGKAPAN */}
+
+        <div
+          style={{
+            border:
+              "1px solid black",
+            marginBottom:
+              "15px",
+          }}
+        >
+
+          <div
+            style={{
+              background:
+                "#e5e5e5",
+              padding: "6px",
+              fontWeight:
+                "bold",
+            }}
+          >
+            KELENGKAPAN
+          </div>
+
+          <div
+            style={{
+              minHeight:
+                "70px",
+              padding: "10px",
+              fontSize:
+                "13px",
+              whiteSpace:
+                "pre-wrap",
+            }}
+          >
+            {data.kelengkapan ||
+              "-"}
+          </div>
+
+        </div>
+
+        {/* KERUSAKAN */}
+
+        <div
+          style={{
+            border:
+              "1px solid black",
+            marginBottom:
+              "15px",
+          }}
+        >
+
+          <div
+            style={{
+              background:
+                "#e5e5e5",
+              padding: "6px",
+              fontWeight:
+                "bold",
+            }}
+          >
+            KELUHAN / KERUSAKAN
+          </div>
+
+          <div
+            style={{
+              minHeight:
+                "120px",
+              padding: "10px",
+              fontSize:
+                "13px",
+              whiteSpace:
+                "pre-wrap",
+            }}
+          >
+            {data.kerusakan ||
+              "-"}
+          </div>
+
+        </div>
+
+        {/* PIN */}
+
+        <table
+          style={{
+            width: "100%",
+            borderCollapse:
+              "collapse",
+            marginBottom:
+              "15px",
+            fontSize:
+              "13px",
+          }}
+        >
+
+          <tbody>
+
+            <tr>
+
+              <td
+                style={{
+                  width: "180px",
+                  padding: "6px",
+                  border:
+                    "1px solid black",
+                }}
+              >
+                PIN / POLA / PASSWORD
+              </td>
+
+              <td
+                style={{
+                  border:
+                    "1px solid black",
+                  padding: "6px",
+                }}
+              >
+                {data.securityType === "pattern"
+              ? data.pattern.join("-")
+              : data.pin}
+
+              {data.securityType === "pattern" ? (
+
+  <div
+    className="
+    grid
+    grid-cols-3
+    gap-3
+    w-fit
+    "
+  >
+
+    {[1,2,3,4,5,6,7,8,9].map(
+      (num) => (
+
+        <div
+          key={num}
+          className={`
+          w-6
+          h-6
+          rounded-full
+          border-2
+
+          ${
+            data.pattern.includes(num)
+            ? "bg-red-600"
+            : "bg-white"
+          }
+        `}
+        />
+
+      )
+    )}
+
+  </div>
+
+) : (
+
+  <span>
+    {data.pin}
+  </span>
+
+)}
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+        {/* ESTIMASI */}
+
+        <table
+          style={{
+            width: "100%",
+            borderCollapse:
+              "collapse",
+            marginBottom:
+              "20px",
+            fontSize:
+              "13px",
+          }}
+        >
+
+          <tbody>
+
+            <tr>
+
+              <td
+                style={{
+                  width: "180px",
+                  padding: "6px",
+                  border:
+                    "1px solid black",
+                  fontWeight:
+                    "bold",
+                }}
+              >
+                ESTIMASI BIAYA
+              </td>
+
+              <td
+                style={{
+                  border:
+                    "1px solid black",
+                  padding: "6px",
+                  fontWeight:
+                    "bold",
+                }}
+              >
+                {formatRupiah(
+                  data.estimasiBiaya ||
+                    0
                 )}
+              </td>
 
-                <p className="font-bold">{data.from?.name || "-"}</p>
-                <p>{data.from?.address || "-"}</p>
-                <p>{data.from?.phone || "-"}</p>
-                <p>{data.from?.email || "-"}</p>
-              </div>
+            </tr>
 
+          </tbody>
+
+        </table>
+
+        {/* CATATAN */}
+
+        <div
+          style={{
+            border:
+              "1px solid black",
+            marginBottom:
+              "20px",
+          }}
+        >
+
+          <div
+            style={{
+              background:
+                "#e5e5e5",
+              padding: "6px",
+              fontWeight:
+                "bold",
+            }}
+          >
+            CATATAN
+          </div>
+
+          <div
+            style={{
+              minHeight:
+                "80px",
+              padding: "10px",
+              fontSize:
+                "13px",
+              whiteSpace:
+                "pre-wrap",
+            }}
+          >
+            {data.catatan ||
+              "-"}
+          </div>
+
+        </div>
+
+                {/* SYARAT & KETENTUAN */}
+
+        <div
+          style={{
+            border: "1px solid black",
+            marginBottom: "20px",
+          }}
+        >
+
+          <div
+            style={{
+              background: "#e5e5e5",
+              padding: "6px",
+              fontWeight: "bold",
+            }}
+          >
+            SYARAT & KETENTUAN
+          </div>
+
+          <div
+            style={{
+              padding: "10px",
+              fontSize: "11px",
+              lineHeight: "18px",
+            }}
+          >
+
+            <div>
+              1. Barang yang sudah diperbaiki wajib diambil maksimal 30 hari setelah selesai.
             </div>
 
-            {/* TABLE */}
-{/* TABLE */}
-<table
-  style={{
-    width: "100%",
-    borderCollapse: "collapse",
-    tableLayout: "auto",
-    fontSize: "12px",
-  }}
->
-  <thead>
-    <tr style={{ background: "#e5e7eb" }}>
-      <th style={{ border: "1px solid #ccc", padding: "6px", textAlign: "left" }}>
-        Deskripsi
-      </th>
-      <th style={{ border: "1px solid #ccc", padding: "6px", width: "60px", textAlign: "center" }}>
-        Qty
-      </th>
-      <th style={{ border: "1px solid #ccc", padding: "6px", width: "120px", textAlign: "right" }}>
-        Harga
-      </th>
-      <th style={{ border: "1px solid #ccc", padding: "6px", width: "140px", textAlign: "right" }}>
-        Subtotal
-      </th>
-    </tr>
-  </thead>
-
-  <tbody>
-    {(data.items || []).map((item: any, i: number) => (
-      <tr key={i}>
-        <td
-          style={{
-            border: "1px solid #ccc",
-            padding: "6px",
-            wordBreak: "break-word",
-          }}
-        >
-          {item.desc || "-"}
-        </td>
-
-        <td
-          style={{
-            border: "1px solid #ccc",
-            padding: "6px",
-            textAlign: "center",
-          }}
-        >
-          {item.qty || 0}
-        </td>
-
-        <td
-          style={{
-            border: "1px solid #ccc",
-            padding: "6px",
-            textAlign: "right",
-          }}
-        >
-          {formatRupiah(item.price || 0)}
-        </td>
-
-        <td
-          style={{
-            border: "1px solid #ccc",
-            padding: "6px",
-            textAlign: "right",
-          }}
-        >
-          {formatRupiah(
-            (item.qty || 0) * (item.price || 0)
-          )}
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-
-            {/* TOTAL */}
-            <h3
-  style={{
-    textAlign: "right",
-    marginTop: "20px",
-    fontWeight: "bold",
-  }}
->
-  TOTAL: {formatRupiah(total)}
-</h3>
-
-            {/* NOTES */}
-            <div className="mt-6">
-              <p className="font-bold">Catatan:</p>
-              <p>{data.notes || "-"}</p>
+            <div>
+              2. Kerusakan yang tidak terdeteksi sebelumnya bukan menjadi tanggung jawab teknisi.
             </div>
 
-            {/* FOOTER */}
-           <div
-  style={{
-    display: "flex",
-    justifyContent: "space-between",
-    marginTop: "40px",
-    alignItems: "flex-end",
-  }}
->
+            <div>
+              3. Kehilangan data selama proses servis bukan tanggung jawab pihak toko.
+            </div>
 
-  {/* KIRI (QRIS) */}
-  <div>
-    {data.qris && (
-      <img
-        src={data.qris}
-        style={{ height: "90px", objectFit: "contain" }}
-      />
-    )}
-  </div>
+            <div>
+              4. Garansi servis hanya berlaku sesuai kesepakatan dan tidak berlaku apabila terdapat kerusakan fisik.
+            </div>
 
-  {/* KANAN (TTD) */}
-  <div style={{ textAlign: "center", width: "200px" }}>
-    <p> Hormat Kami,</p>
-
-    {data.signature && (
-      <img
-        src={data.signature}
-        style={{
-          height: "80px",
-          objectFit: "contain",
-          margin: "8px auto",
-          display: "block",
-        }}
-      />
-    )}
-
-    <p><span className="font-bold">{data.from?.name || "-"}</span></p>
-  </div>
-
-</div>
-
-            {/* FOOTNOTE */}
-            <div
-              style={{
-                marginTop: "15px",
-                fontSize: "12px",
-                textAlign: "center",
-              }}
-            >
-              <p>Terima kasih atas kepercayaan Anda 🙏</p>
-              <p>Dibuat oleh: <span className="font-bold text-red-700">{data.from?.name || "-"}</span></p>
+            <div>
+              5. Unit yang tidak diambil lebih dari 3 bulan dianggap ditinggalkan pemilik.
             </div>
 
           </div>
-      <div className="top-500">
-        <button onClick={handleDownloadPDF} className="btn">
-          📄 Download PDF
-        </button>
-      </div>
+
         </div>
+
+        {/* TANDA TANGAN */}
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginTop: "35px",
+            gap: "40px",
+          }}
+        >
+
+          {/* PELANGGAN */}
+
+          <div
+            style={{
+              flex: 1,
+              textAlign: "center",
+            }}
+          >
+
+            <div
+              style={{
+                fontWeight: "bold",
+                marginBottom: "10px",
+              }}
+            >
+              Pelanggan
+            </div>
+
+            <div
+              style={{
+                height: "90px",
+              }}
+            />
+
+            <div
+              style={{
+                borderTop:
+                  "1px solid black",
+                paddingTop: "5px",
+                fontSize: "13px",
+              }}
+            >
+              {data.namaPelanggan ||
+                "(............................)"}
+            </div>
+
+          </div>
+
+          {/* ADAM CELL */}
+
+          <div
+            style={{
+              flex: 1,
+              textAlign: "center",
+            }}
+          >
+
+            <div
+              style={{
+                fontWeight: "bold",
+                marginBottom: "10px",
+              }}
+            >
+              Adam Cell
+            </div>
+
+            {data.signature && (
+
+              <img
+                src={data.signature}
+                alt="Tanda Tangan"
+                style={{
+                  height: "80px",
+                  objectFit:
+                    "contain",
+                  margin:
+                    "0 auto",
+                  display:
+                    "block",
+                }}
+              />
+
+            )}
+
+            {!data.signature && (
+
+              <div
+                style={{
+                  height: "90px",
+                }}
+              />
+
+            )}
+
+            <div
+              style={{
+                borderTop:
+                  "1px solid black",
+                paddingTop: "5px",
+                fontSize: "13px",
+              }}
+            >
+              Admin Adam Cell
+            </div>
+
+          </div>
+
+        </div>
+
+                {/* FOOTER */}
+
+        <div
+          style={{
+            marginTop: "30px",
+            textAlign: "center",
+            fontSize: "11px",
+            color: "#555",
+          }}
+        >
+
+          <div>
+            Terima kasih telah mempercayakan
+            perbaikan perangkat Anda kepada
+            Adam Cell.
+          </div>
+
+          <div
+            style={{
+              marginTop: "4px",
+            }}
+          >
+            Taliabu • {data.teleponToko}
+          </div>
+
+        </div>
+
       </div>
-          {/* BUTTON */}
+
     </div>
+
   );
+
 }
