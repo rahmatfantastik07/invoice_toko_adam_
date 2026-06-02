@@ -5,195 +5,140 @@ import InvoicePreview from "./InvoicePreview";
 import { generateInvoiceNumber } from "./utils";
 
 export default function InvoiceForm() {
-
   const [data, setData] = useState<any>({
+    invoiceNumber: "",
 
-  invoiceNumber: "",
+    date: "",
 
-  date: "",
+    logo: "",
 
-  logo: "",
+    signature: "",
 
-  signature: "",
+    toko: "Adam Cell",
 
-  toko: "Adam Cell",
+    alamatToko: "Taliabu",
 
-  alamatToko: "Taliabu",
+    teleponToko: "08xxxxxxxxxx",
 
-  teleponToko: "08xxxxxxxxxx",
+    namaPelanggan: "",
 
-  namaPelanggan: "",
+    alamatPelanggan: "",
 
-  alamatPelanggan: "",
+    nomorHp: "",
 
-  nomorHp: "",
+    merkHp: "",
 
-  merkHp: "",
+    tipeHp: "",
 
-  tipeHp: "",
+    imei: "",
 
-  imei: "",
+    warna: "",
 
-  warna: "",
+    kelengkapan: "",
 
-  kelengkapan: "",
+    kerusakan: "",
 
-  kerusakan: "",
+    securityType: "none",
 
- securityType: "none",
+    pin: "",
 
-pin: "",
+    pattern: [],
 
-pattern: [],
+    catatan: "",
 
-  catatan: "",
+    estimasiBiaya: 0,
 
-  estimasiBiaya: 0,
-  checkup: false,
+    service: false,
 
-});
+    checkup: false,
 
- useEffect(() => {
+    flash: false,
 
-  const today =
-    new Date()
-      .toISOString()
-      .split("T")[0];
+    unlockIcloud: false,
 
-  setData((prev: any) => ({
+    unlockMi: false,
 
-    ...prev,
+    gantiLcd: false,
 
-    invoiceNumber:
-      prev.invoiceNumber ||
-      generateInvoiceNumber(),
+    gantiBaterai: false,
 
-    
+    gantiMesin: false,
 
-  }));
+    software: false,
 
-}, []);
+    hardware: false,
+  });
 
-  const handleFile = (
-    e: any,
-    type:
-      | "logo"
-      | "signature"
-  ) => {
+  useEffect(() => {
+    const today = new Date().toISOString().split("T")[0];
 
-    const file =
-      e.target.files?.[0];
+    setData((prev: any) => ({
+      ...prev,
+
+      invoiceNumber: prev.invoiceNumber || generateInvoiceNumber(),
+    }));
+  }, []);
+
+  const handleFile = (e: any, type: "logo" | "signature") => {
+    const file = e.target.files?.[0];
 
     if (!file) return;
 
-    const reader =
-      new FileReader();
+    const reader = new FileReader();
 
     reader.onload = () => {
-
       setData((prev: any) => ({
-
         ...prev,
 
-        [type]:
-          reader.result,
-
+        [type]: reader.result,
       }));
-
     };
 
-    reader.readAsDataURL(
-      file
-    );
-
+    reader.readAsDataURL(file);
   };
 
-  const handlePhone = (
-    value: string
-  ) => {
+  const handlePhone = (value: string) => {
+    if (!/^\d*$/.test(value)) return;
 
-    if (!/^\d*$/.test(value))
-      return;
+    if (value.length > 13) return;
 
-    if (value.length > 13)
-      return;
-
-    if (
-      value.length > 0 &&
-      !value.startsWith("0")
-    )
-      return;
+    if (value.length > 0 && !value.startsWith("0")) return;
 
     setData({
-
       ...data,
 
       nomorHp: value,
-
     });
-
   };
 
-  const formatRupiahInput = (
-    value: string
-  ) => {
+  const formatRupiahInput = (value: string) => {
+    const angka = value.replace(/\D/g, "");
 
-    const angka =
-      value.replace(
-        /\D/g,
-        ""
-      );
+    if (!angka) return "";
 
-    if (!angka)
-      return "";
-
-    return new Intl.NumberFormat(
-      "id-ID"
-    ).format(
-      Number(angka)
-    );
-
+    return new Intl.NumberFormat("id-ID").format(Number(angka));
   };
 
-  const handleBiaya = (
-    value: string
-  ) => {
-
+  const handleBiaya = (value: string) => {
     setData({
-
       ...data,
 
-      estimasiBiaya:
-        formatRupiahInput(
-          value
-        ),
-
+      estimasiBiaya: formatRupiahInput(value),
     });
-
   };
   return (
-
-    <div className="grid lg:grid-cols-2 gap-6 w-280">
-
+    <div className="grid lg:grid-cols-2 gap-6 w-190">
       {/* ================= FORM ================= */}
 
       <div className="bg-white rounded-xl shadow p-5 space-y-4">
-
         <h2 className="text-xl font-bold border-b pb-2">
-
           Form Nota Service Adam Cell
-
         </h2>
 
         {/* NOMOR NOTA */}
 
         <div>
-
-          <label className="font-semibold block mb-1">
-
-            Nomor Nota
-
-          </label>
+          <label className="font-semibold block mb-1">Nomor Nota</label>
 
           <input
             className="input w-full"
@@ -201,23 +146,16 @@ pattern: [],
             onChange={(e) =>
               setData({
                 ...data,
-                nomorNota:
-                  e.target.value,
+                nomorNota: e.target.value,
               })
             }
           />
-
         </div>
 
         {/* TANGGAL */}
 
         <div>
-
-          <label className="font-semibold block mb-1">
-
-            Tanggal
-
-          </label>
+          <label className="font-semibold block mb-1">Tanggal</label>
 
           <input
             type="date"
@@ -226,23 +164,16 @@ pattern: [],
             onChange={(e) =>
               setData({
                 ...data,
-                tanggal:
-                  e.target.value,
+                tanggal: e.target.value,
               })
             }
           />
-
         </div>
 
         {/* PELANGGAN */}
 
         <div className="border rounded p-3">
-
-          <h3 className="font-bold mb-3">
-
-            Data Pelanggan
-
-          </h3>
+          <h3 className="font-bold mb-3">Data Pelanggan</h3>
 
           <input
             className="input w-full mb-2"
@@ -251,8 +182,7 @@ pattern: [],
             onChange={(e) =>
               setData({
                 ...data,
-                namaPelanggan:
-                  e.target.value,
+                namaPelanggan: e.target.value,
               })
             }
           />
@@ -261,24 +191,14 @@ pattern: [],
             className="input w-full"
             placeholder="Nomor HP"
             value={data.nomorHp}
-            onChange={(e) =>
-              handlePhone(
-                e.target.value
-              )
-            }
+            onChange={(e) => handlePhone(e.target.value)}
           />
-
         </div>
 
         {/* DATA HP */}
 
         <div className="border rounded p-3">
-
-          <h3 className="font-bold mb-3">
-
-            Data Handphone
-
-          </h3>
+          <h3 className="font-bold mb-3">Data Handphone</h3>
 
           <input
             className="input w-full mb-2"
@@ -287,8 +207,7 @@ pattern: [],
             onChange={(e) =>
               setData({
                 ...data,
-                merk:
-                  e.target.value,
+                merk: e.target.value,
               })
             }
           />
@@ -300,8 +219,7 @@ pattern: [],
             onChange={(e) =>
               setData({
                 ...data,
-                tipe:
-                  e.target.value,
+                tipe: e.target.value,
               })
             }
           />
@@ -313,99 +231,66 @@ pattern: [],
             onChange={(e) =>
               setData({
                 ...data,
-                imei:
-                  e.target.value,
+                imei: e.target.value,
               })
             }
           />
-
         </div>
 
         {/* JENIS SERVIS */}
 
         <div className="border rounded p-3">
-
-          <h3 className="font-bold mb-3">
-
-            Jenis Service
-
-          </h3>
+          <h3 className="font-bold mb-3">Jenis Service</h3>
 
           <div className="grid grid-cols-3 gap-3">
-
             <label>
-
               <input
                 type="checkbox"
-                checked={
-                  data.checkup
-                }
+                checked={data.checkup}
                 onChange={(e) =>
                   setData({
                     ...data,
-                    checkup:
-                      e.target.checked,
+                    checkup: e.target.checked,
                   })
                 }
-              />
-
-              {" "}Check Up
-
+              />{" "}
+              Check Up
             </label>
 
             <label>
-
               <input
                 type="checkbox"
-                checked={
-                  data.service
-                }
+                checked={data.service}
                 onChange={(e) =>
                   setData({
                     ...data,
-                    service:
-                      e.target.checked,
+                    service: e.target.checked,
                   })
                 }
-              />
-
-              {" "}Service
-
+              />{" "}
+              Service
             </label>
 
             <label>
-
               <input
                 type="checkbox"
-                checked={
-                  data.garansi
-                }
+                checked={data.garansi}
                 onChange={(e) =>
                   setData({
                     ...data,
-                    garansi:
-                      e.target.checked,
+                    garansi: e.target.checked,
                   })
                 }
-              />
-
-              {" "}Garansi
-
+              />{" "}
+              Garansi
             </label>
-
           </div>
-
         </div>
 
-                {/* KELENGKAPAN */}
+        {/* KELENGKAPAN */}
 
         <div className="border rounded p-3">
-
-          <h3 className="font-bold mb-3">
-
-            Kelengkapan
-
-          </h3>
+          <h3 className="font-bold mb-3">Kelengkapan</h3>
 
           <textarea
             className="input w-full min-h-24"
@@ -414,23 +299,16 @@ pattern: [],
             onChange={(e) =>
               setData({
                 ...data,
-                kelengkapan:
-                  e.target.value,
+                kelengkapan: e.target.value,
               })
             }
           />
-
         </div>
 
         {/* KERUSAKAN */}
 
         <div className="border rounded p-3">
-
-          <h3 className="font-bold mb-3">
-
-            Keluhan / Kerusakan
-
-          </h3>
+          <h3 className="font-bold mb-3">Keluhan / Kerusakan</h3>
 
           <textarea
             className="input w-full min-h-28"
@@ -439,137 +317,97 @@ pattern: [],
             onChange={(e) =>
               setData({
                 ...data,
-                kerusakan:
-                  e.target.value,
+                kerusakan: e.target.value,
               })
             }
           />
-
         </div>
 
         {/* PIN / POLA */}
 
         <div className="border rounded p-3">
+          <h3 className="font-bold mb-3">Keamanan Perangkat</h3>
 
-  <h3 className="font-bold mb-3">
-    Keamanan Perangkat
-  </h3>
+          <select
+            className="input w-full mb-3"
+            value={data.securityType}
+            onChange={(e) =>
+              setData({
+                ...data,
+                securityType: e.target.value,
+              })
+            }
+          >
+            <option value="none">Tidak Ada</option>
 
-  <select
-    className="input w-full mb-3"
-    value={data.securityType}
-    onChange={(e) =>
-      setData({
-        ...data,
-        securityType: e.target.value,
-      })
-    }
-  >
-    <option value="none">
-      Tidak Ada
-    </option>
+            <option value="pin">PIN</option>
 
-    <option value="pin">
-      PIN
-    </option>
+            <option value="password">Password</option>
 
-    <option value="password">
-      Password
-    </option>
+            <option value="pattern">Pola</option>
+          </select>
 
-    <option value="pattern">
-      Pola
-    </option>
+          {(data.securityType === "pin" ||
+            data.securityType === "password") && (
+            <input
+              className="input w-full mb-3"
+              placeholder={
+                data.securityType === "pin"
+                  ? "Masukkan PIN"
+                  : "Masukkan Password"
+              }
+              value={data.pin}
+              onChange={(e) =>
+                setData({
+                  ...data,
+                  pin: e.target.value,
+                })
+              }
+            />
+          )}
 
-  </select>
+          {data.securityType === "pattern" && (
+            <div className="align-middle">
+              <p className="mb-2 font-semibold ">Klik titik sesuai pola</p>
 
-  {(data.securityType === "pin" ||
-    data.securityType === "password") && (
-
-    <input
-      className="input w-full mb-3"
-      placeholder={
-        data.securityType === "pin"
-          ? "Masukkan PIN"
-          : "Masukkan Password"
-      }
-      value={data.pin}
-      onChange={(e) =>
-        setData({
-          ...data,
-          pin: e.target.value,
-        })
-      }
-    />
-
-  )}
-
-  {data.securityType === "pattern" && (
-
-  <div className="align-middle">
-
-    <p className="mb-2 font-semibold ">
-      Klik titik sesuai pola
-    </p>
-
-    <div
-      className="
+              <div
+                className="
       grid
       grid-cols-3
       gap-4
       w-40
       "
-    >
+              >
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                  <button
+                    key={num}
+                    type="button"
+                    onClick={() => {
+                      if (data.pattern.includes(num)) return;
 
-      {[1,2,3,4,5,6,7,8,9].map(
-        (num) => (
-
-          <button
-            key={num}
-            type="button"
-            onClick={() => {
-
-              if (
-                data.pattern.includes(
-                  num
-                )
-              )
-                return;
-
-              setData({
-                ...data,
-                pattern: [
-                  ...data.pattern,
-                  num,
-                ],
-              });
-
-            }}
-            className={`
+                      setData({
+                        ...data,
+                        pattern: [...data.pattern, num],
+                      });
+                    }}
+                    className={`
             w-10
             h-10
             rounded-full
             border-2
             ${
-              data.pattern.includes(
-                num
-              )
-                ? "bg-blue-600 text-white"
-                : "bg-white"
+              data.pattern.includes(num) ? "bg-blue-600 text-white" : "bg-white"
             }
           `}
-          >
-            {num}
-          </button>
+                  >
+                    {num}
+                  </button>
+                ))}
+              </div>
 
-        )
-      )}
-
-    </div>
-
-    <button
-      type="button"
-      className="
+              <button
+                type="button"
+                className="
       mt-3
       bg-red-500
       text-white
@@ -577,97 +415,61 @@ pattern: [],
       py-1
       rounded
       "
-      onClick={() =>
-        setData({
-          ...data,
-          pattern: [],
-        })
-      }
-    >
-      Reset Pola
-    </button>
-
-  </div>
-
-)}
-
-</div>
+                onClick={() =>
+                  setData({
+                    ...data,
+                    pattern: [],
+                  })
+                }
+              >
+                Reset Pola
+              </button>
+            </div>
+          )}
+        </div>
         {/* ESTIMASI */}
 
         <div className="border rounded p-3">
-
-          <h3 className="font-bold mb-3">
-
-            Estimasi Biaya
-
-          </h3>
+          <h3 className="font-bold mb-3">Estimasi Biaya</h3>
 
           <input
             type="number"
             className="input w-full"
             placeholder="Estimasi Biaya Service"
-            value={
-              data.estimasiBiaya
-            }
+            value={data.estimasiBiaya}
             onChange={(e) =>
               setData({
                 ...data,
-                estimasiBiaya:
-                  Number(
-                    e.target.value
-                  ),
+                estimasiBiaya: Number(e.target.value),
               })
             }
           />
-
         </div>
 
         {/* LOGO */}
 
         <div className="border rounded p-3">
-
-          <h3 className="font-bold mb-3">
-
-            Upload Logo Adam Cell
-
-          </h3>
+          <h3 className="font-bold mb-3">Upload Logo Adam Cell</h3>
 
           <input
             type="file"
             className="w-full"
             accept="image/*"
-            onChange={(e) =>
-              handleFile(
-                e,
-                "logo"
-              )
-            }
+            onChange={(e) => handleFile(e, "logo")}
           />
-
         </div>
 
         {/* TTD */}
 
         <div className="border rounded p-3">
-
-          <h3 className="font-bold mb-3">
-
-            Upload Tanda Tangan
-
-          </h3>
+          <h3 className="font-bold mb-3">Upload Tanda Tangan</h3>
 
           <input
             type="file"
             className="w-full"
             accept="image/*"
-            onChange={(e) =>
-              handleFile(
-                e,
-                "signature"
-              )
-            }
+            onChange={(e) => handleFile(e, "signature")}
           />
-
         </div>
 
         {/* TOMBOL */}
@@ -676,19 +478,13 @@ pattern: [],
           type="button"
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg"
         >
-
           Preview Nota Service
-
         </button>
-
       </div>
 
       {/* ================= PREVIEW ================= */}
 
-      <InvoicePreview
-        data={data}
-      />
-
+      <InvoicePreview data={data} />
     </div>
-      );
+  );
 }
